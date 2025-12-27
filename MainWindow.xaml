@@ -40,7 +40,23 @@
                     </Grid>
                 </DockPanel>
             </TabItem>
-            <TabItem Header="Exports" />
+            <TabItem Header="Exports" >
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <ListBox x:Name="exportsListView" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding .}" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </TabItem>
             <TabItem Header="ByteCodes" />
         </TabControl>
     </DockPanel>

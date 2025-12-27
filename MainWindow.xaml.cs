@@ -110,6 +110,14 @@ namespace kardseditor
             currentConfig.read();
             ConfirmPropertiesButton.IsEnabled = false;
             ReloadPropertiesButton.IsEnabled = false;
+            List<string> c= new List<string>() { };
+            for (int i = 0; i < 100; i++)
+                c.Add(i.ToString());
+            exportsListView.ItemsSource = c;
+        }
+        class ccb { 
+            public int Index;
+            public string Name { get; set; }
         }
         private void Setting(object sender, RoutedEventArgs e)
         {
@@ -150,30 +158,26 @@ namespace kardseditor
         private void SetPropertyOrCreate(CardProperty cp)
         {
             NormalExport normalExport = (NormalExport)uasset.Exports[1];
+            var existingData = normalExport.Data.FirstOrDefault(data => data.Name.ToString() == cp.K);
+
+            switch (existingData)
             {
-                foreach (var data in normalExport.Data)
-                {
-                    if (data.Name.ToString() == cp.K)
+                case IntPropertyData intData when cp.T == "int":
+                    intData.Value = Convert.ToInt32(cp.V);
+                    break;
+                case BoolPropertyData boolData when cp.T == "bool":
+                    boolData.Value = GetBool(cp.V);
+                    break;
+                case null:
+                    normalExport.Data.Add(cp.T switch
                     {
-                        switch (cp.T) {
-                            case "int":
-                            ((IntPropertyData)data).Value = Convert.ToInt32(cp.V);
-                                return;
-                            case "bool":
-                                ((BoolPropertyData)data).Value = GetBool(cp.V);
-                                return;
-                        }
-                    }
-                }
-                switch (cp.T)
-                {
-                    case "int":
-                        normalExport.Data.Add(new IntPropertyData(FName.FromString(uasset, cp.K)) { Value = Convert.ToInt32(cp.V) });
-                        return;
-                    case "bool":
-                        normalExport.Data.Add(new BoolPropertyData(FName.FromString(uasset, cp.K)) { Value = GetBool(cp.V) });
-                        return;
-                }
+                        "int" => new IntPropertyData(FName.FromString(uasset, cp.K)) { Value = Convert.ToInt32(cp.V) },
+                        "bool" => new BoolPropertyData(FName.FromString(uasset, cp.K)) { Value = GetBool(cp.V) },
+                        _ => throw new ArgumentException($"Unsupported type: {cp.T}")
+                    });
+                    break;
+                default:
+                    throw new InvalidOperationException($"Type mismatch for property {cp.K}");
             }
         }
         private void DeletePropertyOrNothing(CardProperty cp)
