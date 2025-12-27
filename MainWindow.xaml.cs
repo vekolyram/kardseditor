@@ -30,7 +30,7 @@ namespace kardseditor
             usmap = new Usmap(currentConfig.usmap);
             uasset = new UAsset(fileName, (UAssetAPI.UnrealTypes.EngineVersion)currentConfig.uever, usmap);
             LoadKard();
-            MessageBox.Show("");
+            MessageBox.Show(uasset.FilePath);
         }
         List<string> zazac = new List<string>() { "？", "。", "；", "，", "！", "", "", "" };
         public string zaza(string str)
