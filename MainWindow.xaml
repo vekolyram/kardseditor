@@ -14,6 +14,7 @@
             <MenuItem Header="_文件">
                 <MenuItem Header="_Open(打开)" Click="OpenFile"/>
                 <MenuItem Header="_Setting(设置)" Click="Setting"/>
+                <MenuItem  x:Name="ReloadMenu" Header="_Reload(重载)" Click="Reload"/>
                 <MenuItem Header="_Save(保存)" Click="Save"/>
                 <MenuItem Header="_Zaza(扎扎)" Click="LoadKardZaza"/>
                 <Separator />
@@ -24,8 +25,7 @@
             <TabItem Header="Properties" Height="25" VerticalAlignment="Top">
                 <DockPanel>
                     <Grid DockPanel.Dock="Bottom" Width="auto" Height="30" VerticalAlignment="Bottom">
-                        <Button x:Name="ConfirmPropertiesButton" Content="确认修改"  Width="80" Height="30" HorizontalAlignment="Right" Margin="0,0,90,0" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton} }" Click="ConfirmProperties"/>
-                        <Button x:Name="ReloadPropertiesButton" Content="重载文件"  Width="80" Height="30" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Click="ReloadProperties"/>
+                        <Button x:Name="ConfirmPropertiesButton" Content="确认修改"  Width="80" Height="30" HorizontalAlignment="Right" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton} }" Click="ConfirmProperties"/>
                     </Grid>
                     <Grid DockPanel.Dock="Top" >
                         <DataGrid Name="properties" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserAddRows="False">
@@ -42,19 +42,27 @@
             </TabItem>
             <TabItem Header="Exports" >
                 <Grid Margin="10">
-                    <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <ListBox x:Name="exportsListView" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ListBox x:Name="exportsListView" Grid.Column="0" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" d:ItemsSource="{d:SampleData ItemCount=5}" RenderTransformOrigin="0.5,0.5">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding .}" 
+                                <TextBlock Text="{Binding Name}" 
                                HorizontalAlignment="Center" 
                                VerticalAlignment="Center" />
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+                    <DockPanel Grid.Column="1"/>
+                    <DockPanel Grid.Column="2">
+                        <Grid DockPanel.Dock="Bottom" Width="auto" Height="auto" VerticalAlignment="Bottom">
+                            <Button Content="添加"  Width="80" Height="30" HorizontalAlignment="Right" Margin="0,0,90,0" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton} }" Click="CreateExport"/>
+                            <Button Content="删除"  Width="80" Height="30" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Click="DeleteExport"/>
+                        </Grid>
+                    </DockPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="ByteCodes" />

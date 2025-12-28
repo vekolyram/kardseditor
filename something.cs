@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Reflection;
+using System;
 
 namespace kardseditor
 {
@@ -54,5 +56,42 @@ namespace kardseditor
     Tuple.Create("hasPincer", "bool", "有前几"),
     Tuple.Create("hasSalvage", "bool", "抢救"),
 };
+    }
+
+public class Wrapper<T>
+    {
+        public T Origin { get; set; }
+        public string Name { get; set; }
+
+        public Wrapper(in T origin, string fieldName)
+        {
+            this.Origin = origin;
+            if (origin == null) return;
+            // 1. 获取类型的反射信息
+            Type type = typeof(T);
+            // 2. 查找字段 (包括私有和公有字段)
+            FieldInfo field = type.GetField(fieldName,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (field != null)
+            {
+                // 3. 获取字段的值
+                object value = field.GetValue(origin);
+                this.Name = value?.ToString() ?? "None";
+            }
+            else
+            {
+                // 如果没找到字段，尝试找属性 (Property)
+                PropertyInfo prop = type.GetProperty(fieldName,
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (prop != null)
+                {
+                    this.Name = prop.GetValue(origin)?.ToString() ?? "None";
+                }
+                else
+                {
+                    this.Name = "FieldNotFound";
+                }
+            }
+        }
     }
 }

@@ -1,0 +1,25 @@
+﻿<adonisControls:AdonisWindow  
+    xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI" x:Class="kardseditor.newexport"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:kardseditor"
+        xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+        mc:Ignorable="d"
+        Title="newexport" Height="450" Width="377">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        
+        <Grid DockPanel.Dock="Bottom" Grid.Row="3" Width="auto" Height="auto" VerticalAlignment="Bottom">
+            <Button Content="确认"  Width="80" Height="30" HorizontalAlignment="Right" Margin="0,0,90,0" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton} }"/>
+            <Button Content="取消"  Width="80" Height="30" HorizontalAlignment="Right" HorizontalContentAlignment="Center"/>
+        </Grid>
+        <Label Content="Label" HorizontalAlignment="Left" Margin="68,0,0,0" VerticalAlignment="Center"/>
+    </Grid>
+</adonisControls:AdonisWindow>

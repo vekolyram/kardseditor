@@ -45,10 +45,10 @@ namespace kardseditor
             }
             return builder.ToString();
         }
-        public void LoadKardZaza(object sender , RoutedEventArgs e)
+        public void LoadKardZaza(object sender, RoutedEventArgs e)
         {
             ConfirmPropertiesButton.IsEnabled = true;
-            ReloadPropertiesButton.IsEnabled = true;
+            ReloadMenu.IsEnabled = true;
             List<CardProperty> unitsProperties = new List<CardProperty>();
             NormalExport defaultExp = (NormalExport)uasset.Exports[1];
             foreach (var pair in CardProperties.unitp)
@@ -78,7 +78,7 @@ namespace kardseditor
         public void LoadKard()
         {
             ConfirmPropertiesButton.IsEnabled = true;
-            ReloadPropertiesButton.IsEnabled = true;
+            ReloadMenu.IsEnabled = true;
             List<CardProperty> unitsProperties = new List<CardProperty>();
             NormalExport defaultExp = (NormalExport)uasset.Exports[1];
             foreach (var pair in CardProperties.unitp)
@@ -103,21 +103,18 @@ namespace kardseditor
                 unitsProperties.Add(p);
             }
             properties.ItemsSource = unitsProperties;
+            List<Wrapper<Export>> wrappers = new List<Wrapper<Export>>() { };
+            foreach (var e in uasset.Exports) {
+                wrappers.Add(new Wrapper<Export>(e, "ObjectName"));
+            }
+            exportsListView.ItemsSource=wrappers;
         }
         public MainWindow()
         {
             InitializeComponent();
             currentConfig.read();
             ConfirmPropertiesButton.IsEnabled = false;
-            ReloadPropertiesButton.IsEnabled = false;
-            List<string> c= new List<string>() { };
-            for (int i = 0; i < 100; i++)
-                c.Add(i.ToString());
-            exportsListView.ItemsSource = c;
-        }
-        class ccb { 
-            public int Index;
-            public string Name { get; set; }
+            ReloadMenu.IsEnabled = false;
         }
         private void Setting(object sender, RoutedEventArgs e)
         {
@@ -136,8 +133,9 @@ namespace kardseditor
         }
         private void ConfirmProperties(object sender, RoutedEventArgs e)
         {
-                int count1 = ((NormalExport)(uasset.Exports[1])).Data.Count;
-            foreach (var a in ((List<CardProperty>)properties.ItemsSource)) {
+            int count1 = ((NormalExport)(uasset.Exports[1])).Data.Count;
+            foreach (var a in ((List<CardProperty>)properties.ItemsSource))
+            {
                 if (a.IsActive)
                     SetPropertyOrCreate(a);
                 else
@@ -150,7 +148,7 @@ namespace kardseditor
         {
             uasset.Write(Path.Combine(currentConfig.exportPath, Path.GetFileName(fileName)));
         }
-        private void ReloadProperties(object sender, RoutedEventArgs e)
+        private void Reload(object sender, RoutedEventArgs e)
         {
             uasset = new UAsset(fileName, (UAssetAPI.UnrealTypes.EngineVersion)currentConfig.uever, usmap);
             LoadKard();
@@ -188,10 +186,58 @@ namespace kardseditor
                 int removedCount = normalExport.Data.RemoveAll(p => p.Name.ToString() == cp.K);
             }
         }
-        public bool GetBool(string str) {
+        public bool GetBool(string str)
+        {
             if (str.Equals("true", StringComparison.OrdinalIgnoreCase) || str.Equals("t", StringComparison.OrdinalIgnoreCase))
                 return true;
             return false;
+        }
+
+        private void CreateExport(object sender, RoutedEventArgs e)
+        {
+            var SE = (StructExport)uasset.Exports[0];
+            var newSE=(StructExport)SE.Clone();
+            newSE.ObjectName = FName.FromString(uasset,"test11");
+            newSE.ObjectGuid=Guid.NewGuid();
+            FunctionExport newFE = new FunctionExport(uasset, new byte[] { 00, 00, 00, 00 })
+            {
+                ObjectName = FName.FromString(uasset, "ccb"),
+                ClassIndex = uasset.Exports[0].ClassIndex,
+               OuterIndex = FPackageIndex.FromExport(0),
+                FunctionFlags = UAssetAPI.UnrealTypes.EFunctionFlags.FUNC_Event | UAssetAPI.UnrealTypes.EFunctionFlags.FUNC_Public | UAssetAPI.UnrealTypes.EFunctionFlags.FUNC_BlueprintCallable | UAssetAPI.UnrealTypes.EFunctionFlags.FUNC_BlueprintEvent,
+            };
+            /*
+             -		[4]	{ObjectName: OnStartOfTurn
+OuterIndex: 1
+ClassIndex: -3
+SuperIndex: -23
+TemplateIndex: -9
+ObjectFlags: RF_Public
+SerialSize: 133
+SerialOffset: 10199
+ScriptSerializationStartOffset: 0
+ScriptSerializationEndOffset: 0
+bForcedExport: False
+bNotForClient: False
+bNotForServer: False
+PackageGuid: 00000000-0000-0000-0000-000000000000
+IsInheritedInstance: False
+PackageFlags: PKG_None
+bNotAlwaysLoadedForEditorGame: False
+bIsAsset: False
+GeneratePublicHash: False
+SerializationBeforeSerializationDependencies: System.Collections.Generic.List`1[UAssetAPI.UnrealTypes.FPackageIndex]
+CreateBeforeSerializationDependencies: System.Collections.Generic.List`1[UAssetAPI.UnrealTypes.FPackageIndex]
+SerializationBeforeCreateDependencies: System.Collections.Generic.List`1[UAssetAPI.UnrealTypes.FPackageIndex]
+CreateBeforeCreateDependencies: System.Collections.Generic.List`1[UAssetAPI.UnrealTypes.FPackageIndex]
+}	UAssetAPI.ExportTypes.Export {UAssetAPI.ExportTypes.FunctionExport}
+
+             */
+            uasset.Exports.Add(newSE);
+        }
+        private void DeleteExport(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
