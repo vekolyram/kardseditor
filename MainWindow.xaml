@@ -17,6 +17,7 @@
                 <MenuItem  x:Name="ReloadMenu" Header="_Reload(重载)" Click="Reload"/>
                 <MenuItem Header="_Save(保存)" Click="Save"/>
                 <MenuItem Header="_Zaza(扎扎)" Click="LoadKardZaza"/>
+                <MenuItem Header="_LookUP(lu)" Click="LookUp"/>
                 <Separator />
                 <MenuItem Header="_Exit(退出)" Click="Exit"/>
             </MenuItem>
@@ -24,11 +25,11 @@
         <TabControl SelectionChanged="TabControl_SelectionChanged">
             <TabItem Header="Properties" Height="25" VerticalAlignment="Top">
                 <DockPanel>
-                    <Grid DockPanel.Dock="Bottom" Width="auto" Height="30" VerticalAlignment="Bottom">
+                    <Grid DockPanel.Dock="Bottom" Width="auto" Height="30" VerticalAlignment="Bottom" Margin="10">
                         <Button x:Name="ConfirmPropertiesButton" Content="确认修改"  Width="80" Height="30" HorizontalAlignment="Right" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton} }" Click="ConfirmProperties"/>
                     </Grid>
                     <Grid DockPanel.Dock="Top" >
-                        <DataGrid Name="properties" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserAddRows="False">
+                        <DataGrid Name="properties" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserAddRows="False" Margin="10">
                             <DataGrid.Columns>
                                 <DataGridCheckBoxColumn Header="是否使用" Binding="{Binding IsActive}" />
                                 <DataGridTextColumn Header="名称" Binding="{Binding K,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
@@ -45,22 +46,75 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="0"/>
+                        <!-- Width auto -->
                     </Grid.ColumnDefinitions>
-                    <ListBox x:Name="exportsListView" Grid.Column="0" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" d:ItemsSource="{d:SampleData ItemCount=5}" RenderTransformOrigin="0.5,0.5">
+                    <ListBox x:Name="exportsListView" Grid.Column="0" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" d:ItemsSource="{d:SampleData ItemCount=5}" RenderTransformOrigin="0.5,0.5" SelectionChanged="exportsListView_SelectionChanged" Margin="0,5,0,5">
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="创建" 
+                                  Click="CreateExport"/>
+                                <MenuItem Header="粘贴" 
+                                  Click="PasteE" x:Name="pasteMenu" IsEnabled="False"/>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Name}" 
                                HorizontalAlignment="Center" 
-                               VerticalAlignment="Center" />
+                               VerticalAlignment="Center" >
+                                    <TextBlock.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="导出序列化" Click="ExportSE"/>
+                                            <!--<MenuItem Header="导入序列化" Click="ImportSE"/>-->
+                                            <MenuItem Header="复制" Click="CopyOE"/>
+                                        </ContextMenu>
+                                    </TextBlock.ContextMenu>
+                                </TextBlock>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <DockPanel Grid.Column="1"/>
+                    <ScrollViewer Grid.Column="1" Margin="5,0,0,0">
+                        <TextBox TextWrapping="Wrap" Width="NaN" x:Name="infoTextBlock" FontSize="15" Text="export数据不完全展示" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" IsReadOnly="True" Height="338"></TextBox>
+                    </ScrollViewer>
                     <DockPanel Grid.Column="2">
                         <Grid DockPanel.Dock="Bottom" Width="auto" Height="auto" VerticalAlignment="Bottom">
                             <Button Content="添加"  Width="80" Height="30" HorizontalAlignment="Right" Margin="0,0,90,0" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton} }" Click="CreateExport"/>
                             <Button Content="删除"  Width="80" Height="30" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Click="DeleteExport"/>
+                        </Grid>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Imports" Height="25" VerticalAlignment="Top" >
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListBox x:Name="importsListView" Grid.Column="0" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}" d:ItemsSource="{d:SampleData ItemCount=5}" RenderTransformOrigin="0.5,0.5" SelectionChanged="importsListView_SelectionChanged" Margin="0,5,0,5">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" 
+                                    HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="创建" 
+                                  Click="CreateImport"/>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                    </ListBox>
+                    <ScrollViewer Grid.Column="1" Margin="10,0,0,0">
+                        <TextBox TextWrapping="Wrap" Width="auto" x:Name="infoiTextBlock" FontSize="15" Text="顶级import数据部分展示" VerticalContentAlignment="Top" HorizontalContentAlignment="Left"/>
+                    </ScrollViewer>
+                    <DockPanel Grid.Column="2">
+                        <Grid DockPanel.Dock="Bottom" Width="auto" Height="auto" VerticalAlignment="Bottom">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="23*"/>
+                                <ColumnDefinition Width="147*"/>
+                            </Grid.ColumnDefinitions>
                         </Grid>
                     </DockPanel>
                 </Grid>

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32;
+using Newtonsoft.Json;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,6 +21,7 @@ namespace kardseditor
         public UAsset uasset;
         public Usmap usmap;
         public string fileName = "";
+        public Export cloneExport;
         private void OpenFile(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog();
@@ -30,7 +31,6 @@ namespace kardseditor
             usmap = new Usmap(currentConfig.usmap);
             uasset = new UAsset(fileName, (UAssetAPI.UnrealTypes.EngineVersion)currentConfig.uever, usmap);
             LoadKard();
-            MessageBox.Show(uasset.FilePath);
         }
         List<string> zazac = new List<string>() { "？", "。", "；", "，", "！", "", "", "" };
         public string zaza(string str)
@@ -103,11 +103,7 @@ namespace kardseditor
                 unitsProperties.Add(p);
             }
             properties.ItemsSource = unitsProperties;
-            List<Wrapper<Export>> wrappers = new List<Wrapper<Export>>() { };
-            foreach (var e in uasset.Exports) {
-                wrappers.Add(new Wrapper<Export>(e, "ObjectName"));
-            }
-            exportsListView.ItemsSource=wrappers;
+            LoadExportsAndImports();
         }
         public MainWindow()
         {
@@ -115,6 +111,10 @@ namespace kardseditor
             currentConfig.read();
             ConfirmPropertiesButton.IsEnabled = false;
             ReloadMenu.IsEnabled = false;
+            fileName = ".\\card_event_supply_shortage.uasset";
+            usmap = new Usmap(currentConfig.usmap);
+            uasset = new UAsset(fileName, (UAssetAPI.UnrealTypes.EngineVersion)currentConfig.uever, usmap);
+            LoadKard();
         }
         private void Setting(object sender, RoutedEventArgs e)
         {
@@ -127,6 +127,47 @@ namespace kardseditor
         {
             this.Close();
             Environment.Exit(0);
+        }
+        public void LoadExportsAndImports() {
+            List<Wrapper<Export>> wrappers = new List<Wrapper<Export>>() { };
+            foreach (var e in uasset.Exports)
+            {
+                wrappers.Add(new Wrapper<Export>(e, "ObjectName"));
+            }
+            exportsListView.ItemsSource = wrappers;
+            List<Wrapper<Import>> wrappers1 = new List<Wrapper<Import>>() { };
+            foreach (var e in uasset.Imports)
+            {
+                wrappers1.Add(new Wrapper<Import>(e, "ObjectName"));
+            }
+            importsListView.ItemsSource = wrappers1;
+        }
+        private void PasteE(object sender, RoutedEventArgs e)
+        {
+            uasset.Exports.Add(cloneExport);
+            LoadExportsAndImports();
+        }
+        private void ExportSE(object sender, RoutedEventArgs e)
+        {
+            var export = ((Wrapper<Export>)(exportsListView.SelectedItem)).Origin;
+            string json = JsonConvert.SerializeObject(export, Formatting.Indented, UAsset.jsonSettings);
+            File.WriteAllText(Path.Combine(currentConfig.exportPath, Path.GetFileNameWithoutExtension(fileName))+export.ObjectName+".json",json);
+        }
+        //private void ImportSE(object sender, RoutedEventArgs e)
+        //{
+        //    var dialog = new OpenFileDialog();
+        //    dialog.Filter = "Json文件|*.json";
+        //    if (dialog.ShowDialog(this) == false) return;
+        //    fileName = dialog.FileName;
+        //    Export exp = JsonConvert.DeserializeObject<Export>(File.ReadAllText(fileName));
+        //    var export = ((Wrapper<Export>)(exportsListView.SelectedItem)).Origin;
+        //    export = exp;
+        //}
+        private void CopyOE(object sender, RoutedEventArgs e)
+        {
+            cloneExport = (Export)((Wrapper<Export>)(exportsListView.SelectedItem)).Origin.Clone();
+            cloneExport.ObjectName = FName.FromString(uasset,cloneExport.ObjectName.ToString()+"1");
+            pasteMenu.IsEnabled= true;
         }
         private void TabControl_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
@@ -186,58 +227,77 @@ namespace kardseditor
                 int removedCount = normalExport.Data.RemoveAll(p => p.Name.ToString() == cp.K);
             }
         }
+        public void CreateImport(object s,RoutedEventArgs e) {
+        }
         public bool GetBool(string str)
         {
             if (str.Equals("true", StringComparison.OrdinalIgnoreCase) || str.Equals("t", StringComparison.OrdinalIgnoreCase))
                 return true;
             return false;
         }
-
         private void CreateExport(object sender, RoutedEventArgs e)
         {
-            var SE = (StructExport)uasset.Exports[0];
-            var newSE=(StructExport)SE.Clone();
-            newSE.ObjectName = FName.FromString(uasset,"test11");
-            newSE.ObjectGuid=Guid.NewGuid();
+            var b = (FunctionExport)(uasset.Exports[3]);
             FunctionExport newFE = new FunctionExport(uasset, new byte[] { 00, 00, 00, 00 })
             {
                 ObjectName = FName.FromString(uasset, "ccb"),
-                ClassIndex = uasset.Exports[0].ClassIndex,
-               OuterIndex = FPackageIndex.FromExport(0),
-                FunctionFlags = UAssetAPI.UnrealTypes.EFunctionFlags.FUNC_Event | UAssetAPI.UnrealTypes.EFunctionFlags.FUNC_Public | UAssetAPI.UnrealTypes.EFunctionFlags.FUNC_BlueprintCallable | UAssetAPI.UnrealTypes.EFunctionFlags.FUNC_BlueprintEvent,
+                ClassIndex = b.ClassIndex,//-3 Function
+                LoadedProperties = b.LoadedProperties,//
+                OuterIndex = b.OuterIndex,//1 class名
+                TemplateIndex = b.TemplateIndex,//-9 Default_Function
+                Children = b.Children,//{UAssetAPI.UnrealTypes.FPackageIndex[0]}
+                FunctionFlags = b.FunctionFlags,//FUNC_Event | FUNC_Public | FUNC_BlueprintCallable | FUNC_BlueprintEvent
+                ObjectFlags = b.ObjectFlags,//EObjectFlags.RF_Public
+                ScriptBytecode = b.ScriptBytecode,
+                CreateBeforeSerializationDependencies = b.CreateBeforeSerializationDependencies,
+                CreateBeforeCreateDependencies = b.CreateBeforeCreateDependencies,
+                Data = b.Data,//null
+                Field = b.Field,//Next=null
+                SuperStruct = b.SuperStruct,
+                SuperIndex = b.SuperIndex//-22  
             };
-            /*
-             -		[4]	{ObjectName: OnStartOfTurn
-OuterIndex: 1
-ClassIndex: -3
-SuperIndex: -23
-TemplateIndex: -9
-ObjectFlags: RF_Public
-SerialSize: 133
-SerialOffset: 10199
-ScriptSerializationStartOffset: 0
-ScriptSerializationEndOffset: 0
-bForcedExport: False
-bNotForClient: False
-bNotForServer: False
-PackageGuid: 00000000-0000-0000-0000-000000000000
-IsInheritedInstance: False
-PackageFlags: PKG_None
-bNotAlwaysLoadedForEditorGame: False
-bIsAsset: False
-GeneratePublicHash: False
-SerializationBeforeSerializationDependencies: System.Collections.Generic.List`1[UAssetAPI.UnrealTypes.FPackageIndex]
-CreateBeforeSerializationDependencies: System.Collections.Generic.List`1[UAssetAPI.UnrealTypes.FPackageIndex]
-SerializationBeforeCreateDependencies: System.Collections.Generic.List`1[UAssetAPI.UnrealTypes.FPackageIndex]
-CreateBeforeCreateDependencies: System.Collections.Generic.List`1[UAssetAPI.UnrealTypes.FPackageIndex]
-}	UAssetAPI.ExportTypes.Export {UAssetAPI.ExportTypes.FunctionExport}
-
-             */
-            uasset.Exports.Add(newSE);
+            uasset.Exports.Add(newFE);
         }
         private void DeleteExport(object sender, RoutedEventArgs e)
         {
+           
+        }
+        private void LookUp(object sender, RoutedEventArgs e)
+        {
+            lookup lw= new lookup(uasset);
+            lw.Show();
+        }
+        private void exportsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            StringBuilder sb = new StringBuilder();
+            var t = (Wrapper<Export>)(exportsListView.SelectedItem);
+            if (t != null)
+            {
+                sb.AppendLine($"Object Name: {t.Origin.ObjectName}");
+                sb.AppendLine($"Class Index: {t.Origin.ClassIndex}");
+                sb.AppendLine($"Serial Size: {t.Origin.SerialSize}");
+                sb.AppendLine($"Outer Index: {t.Origin.OuterIndex}");
+                infoTextBlock.Text = sb.ToString();
+            }
+        }
 
+        private void importsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            StringBuilder sb = new StringBuilder();
+            var t = (Wrapper<Import>)(importsListView.SelectedItem);
+            if (t != null)
+            {
+                sb.AppendLine($"Object Name: {t.Origin.ObjectName}");
+                sb.AppendLine($"Class Name: {t.Origin.ClassName}");
+                sb.AppendLine($"Package Name: {t.Origin.PackageName}");
+                sb.AppendLine($"Outer Index: {t.Origin.OuterIndex}");
+                infoiTextBlock.Text = sb.ToString();
+            }
+        }
+        public FunctionExport FindFexpBasicP(UAsset asset) {
+            FName.FromString(asset,"Default_Function");
+           // uasset.SearchForImport();
+            return null;
         }
     }
 }
