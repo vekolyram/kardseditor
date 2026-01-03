@@ -293,10 +293,11 @@ namespace kardseditor
                 sb.AppendLine($"Outer Index: {t.Origin.OuterIndex}");
                 infoiTextBlock.Text = sb.ToString();
             }
+            FindFexpBasicP(uasset);
         }
         public FunctionExport FindFexpBasicP(UAsset asset) {
-            FName.FromString(asset,"Default_Function");
-           // uasset.SearchForImport();
+            var a= uasset.SearchForImport(FName.FromString(asset, "Default_Function"));
+            MessageBox.Show(uasset.Imports[a].ObjectName.ToString());
             return null;
         }
     }
