@@ -119,7 +119,16 @@
                     </DockPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="ByteCodes" />
+            <TabItem Header="ByteCodes" HorizontalAlignment="Right" Width="77" >
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TreeView Grid.Column="1" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}"/>
+                
+                </Grid>
+            </TabItem>
         </TabControl>
     </DockPanel>
 </adonisControls:AdonisWindow>

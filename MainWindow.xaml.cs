@@ -22,6 +22,7 @@ namespace kardseditor
         public Usmap usmap;
         public string fileName = "";
         public Export cloneExport;
+        private int cloneCount;
         private void OpenFile(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog();
@@ -144,7 +145,10 @@ namespace kardseditor
         }
         private void PasteE(object sender, RoutedEventArgs e)
         {
-            uasset.Exports.Add(cloneExport);
+            var ce2 = (Export)cloneExport.Clone();
+            ce2.ObjectName = FName.FromString(uasset, cloneExport.ObjectName.ToString() + cloneCount.ToString());
+            uasset.Exports.Add(ce2);
+            cloneCount += 1;
             LoadExportsAndImports();
         }
         private void ExportSE(object sender, RoutedEventArgs e)
@@ -165,9 +169,9 @@ namespace kardseditor
         //}
         private void CopyOE(object sender, RoutedEventArgs e)
         {
-            cloneExport = (Export)((Wrapper<Export>)(exportsListView.SelectedItem)).Origin.Clone();
-            cloneExport.ObjectName = FName.FromString(uasset,cloneExport.ObjectName.ToString()+"1");
+            cloneExport = (Export)((Wrapper<Export>)(exportsListView.SelectedItem)).Origin;
             pasteMenu.IsEnabled= true;
+            cloneCount = 0;
         }
         private void TabControl_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
@@ -228,6 +232,7 @@ namespace kardseditor
             }
         }
         public void CreateImport(object s,RoutedEventArgs e) {
+
         }
         public bool GetBool(string str)
         {
@@ -242,21 +247,20 @@ namespace kardseditor
             {
                 ObjectName = FName.FromString(uasset, "ccb"),
                 ClassIndex = b.ClassIndex,//-3 Function
-                LoadedProperties = b.LoadedProperties,//
                 OuterIndex = b.OuterIndex,//1 class名
                 TemplateIndex = b.TemplateIndex,//-9 Default_Function
                 Children = b.Children,//{UAssetAPI.UnrealTypes.FPackageIndex[0]}
                 FunctionFlags = b.FunctionFlags,//FUNC_Event | FUNC_Public | FUNC_BlueprintCallable | FUNC_BlueprintEvent
                 ObjectFlags = b.ObjectFlags,//EObjectFlags.RF_Public
                 ScriptBytecode = b.ScriptBytecode,
-                CreateBeforeSerializationDependencies = b.CreateBeforeSerializationDependencies,
-                CreateBeforeCreateDependencies = b.CreateBeforeCreateDependencies,
                 Data = b.Data,//null
                 Field = b.Field,//Next=null
-                SuperStruct = b.SuperStruct,
-                SuperIndex = b.SuperIndex//-22  
+                LoadedProperties = b.LoadedProperties,//
+                SuperStruct = b.SuperStruct,//-22
+                SuperIndex = b.SuperIndex,//-22  
             };
             uasset.Exports.Add(newFE);
+            LoadExportsAndImports();
         }
         private void DeleteExport(object sender, RoutedEventArgs e)
         {
@@ -289,15 +293,21 @@ namespace kardseditor
             {
                 sb.AppendLine($"Object Name: {t.Origin.ObjectName}");
                 sb.AppendLine($"Class Name: {t.Origin.ClassName}");
-                sb.AppendLine($"Package Name: {t.Origin.PackageName}");
+                sb.AppendLine($"Package Name: {t.Origin.ClassPackage}");
                 sb.AppendLine($"Outer Index: {t.Origin.OuterIndex}");
                 infoiTextBlock.Text = sb.ToString();
             }
-            FindFexpBasicP(uasset);
+            //FindFexpBasicP(uasset);
         }
         public FunctionExport FindFexpBasicP(UAsset asset) {
-            var a= uasset.SearchForImport(FName.FromString(asset, "Default_Function"));
-            MessageBox.Show(uasset.Imports[a].ObjectName.ToString());
+            Func<string, int> fi = n => { for (int i = 0; i < asset.Imports.Count(); i++) if (asset.Imports[i].ObjectName.ToString() == n) return i+1; return 1; };
+            var TemplateIndex = -fi("Default__Function");
+            var ClassIndex = -fi( "Function");
+            FunctionExport newFE = new FunctionExport(uasset, new byte[] { 00, 00, 00, 00, 0, 0, 0, 0 })
+            {
+
+            };
+            
             return null;
         }
     }
