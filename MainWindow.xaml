@@ -56,6 +56,7 @@
                                   Click="CreateExport"/>
                                 <MenuItem Header="粘贴" 
                                   Click="PasteE" x:Name="pasteMenu" IsEnabled="False"/>
+                                
                             </ContextMenu>
                         </ListBox.ContextMenu>
                         <ListBox.ItemTemplate>
@@ -68,6 +69,8 @@
                                             <MenuItem Header="导出序列化" Click="ExportSE"/>
                                             <!--<MenuItem Header="导入序列化" Click="ImportSE"/>-->
                                             <MenuItem Header="复制" Click="CopyOE"/>
+                                            <MenuItem Header="删除" 
+Click="DeleteExport"/>
                                         </ContextMenu>
                                     </TextBlock.ContextMenu>
                                 </TextBlock>

@@ -232,7 +232,6 @@ namespace kardseditor
             }
         }
         public void CreateImport(object s,RoutedEventArgs e) {
-
         }
         public bool GetBool(string str)
         {
@@ -264,7 +263,9 @@ namespace kardseditor
         }
         private void DeleteExport(object sender, RoutedEventArgs e)
         {
-           
+            var a = ((Wrapper<Export>)(exportsListView.SelectedItem)).Origin;
+            uasset.Exports.Remove(a);
+            LoadExportsAndImports();
         }
         private void LookUp(object sender, RoutedEventArgs e)
         {
