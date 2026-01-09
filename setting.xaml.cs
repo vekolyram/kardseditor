@@ -32,6 +32,8 @@ namespace kardseditor
 
         private void Confirm(object sender, RoutedEventArgs e)
         {
+            assetPathInput.Text = assetPathInput.Text.Replace(@"\", @"\\");
+            mappingPathInput.Text = mappingPathInput.Text.Replace(@"\", @"\\");
             needEditConfig.exportPath = assetPathInput.Text;
             needEditConfig.usmap = mappingPathInput.Text;
             needEditConfig.uever = ueverCombo.SelectedIndex + 36;

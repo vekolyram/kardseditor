@@ -25,13 +25,22 @@ namespace kardseditor
         private int cloneCount;
         private void OpenFile(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFileDialog();
-            dialog.Filter = "Unreal资产文件|*.uasset";
-            if (dialog.ShowDialog(this) == false) return;
-            fileName = dialog.FileName;
-            usmap = new Usmap(currentConfig.usmap);
-            uasset = new UAsset(fileName, (UAssetAPI.UnrealTypes.EngineVersion)currentConfig.uever, usmap);
-            LoadKard();
+            try
+            {
+                var dialog = new OpenFileDialog();
+                dialog.Filter = "Unreal资产文件|*.uasset";
+                if (dialog.ShowDialog(this) == false) return;
+                fileName = dialog.FileName;
+                usmap = new Usmap(currentConfig.usmap);
+                uasset = new UAsset(fileName, (UAssetAPI.UnrealTypes.EngineVersion)currentConfig.uever, usmap);
+                LoadKard();
+            }
+            catch (Exception e1){
+                MessageBox.Show(e1.Message);
+                MessageBox.Show(e1.Source);
+                MessageBox.Show(e1.StackTrace);
+                MessageBox.Show(e1.ToString());
+            }
         }
         List<string> zazac = new List<string>() { "？", "。", "；", "，", "！", "", "", "" };
         public string zaza(string str)
@@ -108,14 +117,22 @@ namespace kardseditor
         }
         public MainWindow()
         {
-            InitializeComponent();
-            currentConfig.read();
-            ConfirmPropertiesButton.IsEnabled = false;
-            ReloadMenu.IsEnabled = false;
-            fileName = ".\\card_event_supply_shortage.uasset";
-            usmap = new Usmap(currentConfig.usmap);
-            uasset = new UAsset(fileName, (UAssetAPI.UnrealTypes.EngineVersion)currentConfig.uever, usmap);
-            LoadKard();
+            try
+            {
+                InitializeComponent();
+                currentConfig.read();
+                ConfirmPropertiesButton.IsEnabled = false;
+                ReloadMenu.IsEnabled = false;
+                //fileName = ".\\card_event_supply_shortage.uasset";
+                //usmap = new Usmap(currentConfig.usmap);
+                //uasset = new UAsset(fileName, (UAssetAPI.UnrealTypes.EngineVersion)currentConfig.uever, usmap);
+                //LoadKard();
+            }
+            catch (Exception e){
+                //MessageBox.Show("请修改usmap");
+                MessageBox.Show(e.Message);
+
+            }
         }
         private void Setting(object sender, RoutedEventArgs e)
         {
@@ -157,16 +174,16 @@ namespace kardseditor
             string json = JsonConvert.SerializeObject(export, Formatting.Indented, UAsset.jsonSettings);
             File.WriteAllText(Path.Combine(currentConfig.exportPath, Path.GetFileNameWithoutExtension(fileName))+export.ObjectName+".json",json);
         }
-        //private void ImportSE(object sender, RoutedEventArgs e)
-        //{
-        //    var dialog = new OpenFileDialog();
-        //    dialog.Filter = "Json文件|*.json";
-        //    if (dialog.ShowDialog(this) == false) return;
-        //    fileName = dialog.FileName;
-        //    Export exp = JsonConvert.DeserializeObject<Export>(File.ReadAllText(fileName));
-        //    var export = ((Wrapper<Export>)(exportsListView.SelectedItem)).Origin;
-        //    export = exp;
-        //}
+        private void ImportSE(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog();
+            dialog.Filter = "Json文件|*.json";
+            if (dialog.ShowDialog(this) == false) return;
+            fileName = dialog.FileName;
+            Export exp = uasset.DeserializeJsonObject<Export>(File.ReadAllText(fileName));
+            var export = ((Wrapper<Export>)(exportsListView.SelectedItem)).Origin;
+            export = exp;
+        }
         private void CopyOE(object sender, RoutedEventArgs e)
         {
             cloneExport = (Export)((Wrapper<Export>)(exportsListView.SelectedItem)).Origin;
